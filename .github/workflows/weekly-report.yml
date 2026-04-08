@@ -1,0 +1,27 @@
+name: Weekly Campaign Report
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 14 * * 1'  # Every Monday at 10 AM EDT (14:00 UTC)
+
+jobs:
+  send-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate and send weekly report
+        env:
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: node weekly-report.js
