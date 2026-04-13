@@ -1,3 +1,33 @@
+### Changelog Update (April 13, 2026 — Template 2 Launch + Campaign Restart)
+**Feature:** Academic Email Template + Campaign Configuration Overhaul
+
+**Changes Made:**
+- **Template 2 (Academic)** created — targets college presidents, deans, VPs, and academic administrators
+  - Babson green (`#00573F`) + gold (`#F0AB00`) header with "Are You Prepared For The AI Reckoning in Higher Ed?" headline
+  - Research-backed copy: 77% employer expectation gap, 58% university failure rate, 56% AI wage premium, July 2026 AACSB standards
+  - Sources footnote: CarringtonCrisp, PwC, GMAC, AACSB
+  - "Dear / Best regards" tone vs. Template 1's casual "Hi / Worth a look?"
+  - CTA button: Babson green with gold text
+  - Subject: `July 2026: The AI "Extinction-Level Event" for B-Schools?`
+- **Template 1 (Tech Execs)** preserved as-is, now formally named
+- **Dual-template system**: `EMAIL_TEMPLATE=1` or `2` env var controls which sends
+- **Batch size**: 50/day → **150/day**
+- **Seed email**: Scott receives a copy of every batch at the START (not mid-batch) to `scott.magnacca1@gmail.com` — shows exactly what recipients see
+- **Sent Log reset**: Cleared all 453 historical rows — campaign restarts from Contact #1 tomorrow
+- **Cron fixed**: Local workflow had wrong cron (`0 14 * * 1-5`). Corrected to `30 12 * * 1-5` (8:30 AM EDT)
+- **Production repo confirmed**: `smagnacca/email-outreach-machine` (separate from this cowork planning repo)
+
+**Preview files created:**
+- `email-preview-template1.html` — Template 1 browser preview
+- `email-preview-template2.html` — Template 2 browser preview (Babson-branded)
+
+**Next Steps:**
+- Scott plans to purchase a larger, more targeted contact list aligned to the academic audience
+- Consider A/B testing Template 2 subject lines once tracking is enabled
+- Enable SendGrid open + click tracking (still pending from April 7 improvement plan)
+
+---
+
 ### Changelog Update (April 7, 2026 — Campaign Performance Analysis + Improvement Plan)
 **Analysis:** First Full Data Audit of Email Outreach Campaign
 

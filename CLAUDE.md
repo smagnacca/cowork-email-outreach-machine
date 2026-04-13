@@ -2,8 +2,8 @@
 
 ## Project Identity
 - **Project:** Email Outreach Machine
-- **Local Mac Path:** `~/cowork-email-outreach-machine`
-- **GitHub Repo:** `https://github.com/smagnacca/email-outreach-machine`
+- **Local Planning Repo (Cowork):** `~/Documents/Claude/Projects/cowork-email-outreach-machine` → `smagnacca/cowork-email-outreach-machine` (changelog, analysis, previews, strategy docs)
+- **Production Code Repo (Claude Code):** `smagnacca/email-outreach-machine` — THIS is where `send_emails.js`, GitHub Actions workflows, and `package.json` live. All code changes go here.
 - **Netlify Quiz:** https://60-second-ai-quiz.netlify.app/
 - **Live Site:** https://scottmagnacca.com
 
