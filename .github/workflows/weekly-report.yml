@@ -1,9 +1,8 @@
-name: Weekly Campaign Report
+name: Weekly Campaign Report (DISABLED — moved to email-outreach-machine repo)
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 14 * * 1'  # Every Monday at 10 AM EDT (14:00 UTC)
+  # schedule removed — this workflow is now in smagnacca/email-outreach-machine
 
 jobs:
   send-report:
