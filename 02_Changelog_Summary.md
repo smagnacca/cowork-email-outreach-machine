@@ -1,3 +1,49 @@
+### Changelog Update (April 13, 2026 — SendGrid Diagnosis, Pause, Stats Baseline)
+**Status:** Campaign paused until April 17. SendGrid upgrade pending identity review.
+
+**Root Cause Diagnosed:**
+- All 401 "Unauthorized" errors were NOT bad API keys — they were `"Maximum credits exceeded"` from SendGrid's free trial hitting its sending limit. The free trial exhausted its total email credits after 780 sends since March 14.
+- The API key itself is valid and correctly saved.
+
+**SendGrid API Key — Final State:**
+- Fresh key created programmatically via browser session API (April 13 2026)
+- Key name in SendGrid dashboard: "FinalKey"
+- Scopes: `mail.send`, `tracking_settings.read`, `tracking_settings.update`
+- Saved to: `~/.claude/tokens/.sendgrid_token` AND GitHub secret `SENDGRID_API_KEY` in `smagnacca/email-outreach-machine`
+- Multiple duplicate keys created during troubleshooting were deleted (ClaudeManaged-Final, ClaudeManaged-OutreachKey, old Email Outreach Machine keys)
+
+**SendGrid Upgrade:**
+- Submitted upgrade to Essentials 50K ($19.95/mo) — PENDING identity review
+- SendGrid will contact Scott within 72 hours (email/phone/video) to verify account
+- Once approved: 50K emails/month unlocked, daily sends resume
+- Free trial formally ends May 21, 2026
+
+**Schedule Paused:**
+- Commented out cron in `send-emails.yml` (commit 28fcddd) — no more daily failure emails
+- Manual trigger (`workflow_dispatch`) still works
+- **Re-enable Friday April 17:** uncomment the `schedule:` block in `.github/workflows/send-emails.yml`
+
+**Stats Baseline (Mar 14 – Apr 13, 780 total requests):**
+- Delivered: 95.64% — good
+- Bounces: 4.10% (~32 bad addresses) — slightly elevated, monitor
+- Unique Opens: 76.79% (599) — **DO NOT TRUST.** Inflated by corporate email security scanners at .edu domains auto-opening every email, plus Apple Mail Privacy Protection. Real human open rate likely 15–25%.
+- Unique Clicks: 20.51% (160) — more reliable, but wraps ALL links (quiz button + footer link). After upgrade, use SendGrid Activity feed to see exactly who clicked what.
+- Spam Reports: 0.00% — excellent
+- Unsubscribes: 0.00% — good
+
+**Key Insight on Clicks:**
+160 clicks but 0 quiz completions = either (a) most clicks went to the footer link not the quiz button, or (b) people landed on the quiz but immediately bounced. UTM tracking now in place — next batch will reveal which link gets clicked.
+
+**Next Steps (in priority order):**
+1. ✅ Wait for SendGrid approval (check email/phone within 72 hours)
+2. ✅ Re-enable schedule Friday April 17 morning
+3. Check SendGrid Activity after first new batch — filter by "Clicked" to see quiz CTA clicks
+4. Add column headers to Quiz_Leads sheet: J=UTM Source, K=UTM Medium, L=UTM Campaign, M=UTM Content
+5. Purchase larger targeted academic contact list (still pending)
+6. Add follow-up sequence Day 3/7/14 (after tracking data confirms engagement)
+
+---
+
 ### Changelog Update (April 13, 2026 — Tracking Layer + Bug Fixes)
 **Features:** SendGrid Open/Click Tracking + UTM Attribution + Weekly Report Fix
 
