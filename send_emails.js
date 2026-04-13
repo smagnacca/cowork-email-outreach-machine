@@ -13,11 +13,13 @@ const sgMail     = require('@sendgrid/mail');
 const SHEET_ID          = '1RHtpqWJMbQPhTTBzF2HU5hzg9SISutY_m40UU_vCleE';
 const CONTACTS_TAB      = 'Contacts';
 const SENT_LOG_TAB      = 'Sent Log';
-const BATCH_SIZE        = 50;
+const BATCH_SIZE        = 150;
 const FROM_EMAIL        = 'scott@scottmagnacca.com';
 const FROM_NAME         = 'Scott Roberts';
 const NOTIFY_EMAIL      = 'scott.magnacca1@gmail.com';
 const QUIZ_URL          = 'https://ceo-sales-60-second-quiz-outreach.netlify.app/';
+// Set EMAIL_TEMPLATE=1 for tech/startup execs, EMAIL_TEMPLATE=2 for academic/education leaders
+const EMAIL_TEMPLATE    = process.env.EMAIL_TEMPLATE || '1';
 const EMAIL_HEADER_IMG  = 'https://ceo-sales-60-second-quiz-outreach.netlify.app/email-header.png';
 const TOTAL_CONTACTS    = 1992;
 
@@ -61,7 +63,7 @@ async function logSentRows(sheets, rows, dateSent) {
     r[1] || '', // LastName
     r[4] || '', // Email
     r[3] || '', // Company
-    `Quick question, ${r[0] || 'there'}`, // Subject
+    getSubjectLine(r[0] || 'there'), // Subject
     'sent',
   ]);
   await sheets.spreadsheets.values.append({
@@ -72,8 +74,16 @@ async function logSentRows(sheets, rows, dateSent) {
   });
 }
 
-// Build the outreach email HTML
-function buildEmailHtml(row) {
+// Returns the correct subject line for the active template
+function getSubjectLine(firstName) {
+  if (EMAIL_TEMPLATE === '2') {
+    return `July 2026: The AI "Extinction-Level Event" for B-Schools?`;
+  }
+  return `Quick question, ${firstName}`;
+}
+
+// Template 1 — Tech / Startup Executives
+function buildEmailHtmlTemplate1(row) {
   const firstName = row[0] || 'there';
   const company   = row[3] || 'your company';
   return `<!DOCTYPE html>
@@ -104,6 +114,51 @@ function buildEmailHtml(row) {
   </div>
 </body>
 </html>`;
+}
+
+// Template 2 — Academic / Education Leaders (Deans, VPs, College Presidents)
+function buildEmailHtmlTemplate2(row) {
+  const firstName = row[0] || 'there';
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+</head>
+<body style="font-family:Arial,sans-serif;font-size:15px;line-height:1.7;color:#333;max-width:580px;margin:0 auto;padding:0;">
+  <div style="background:linear-gradient(160deg,#00573F 0%,#003D2B 100%);padding:40px 36px 36px 36px;text-align:center;">
+    <p style="font-family:Georgia,'Times New Roman',serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#F0AB00;margin:0 0 16px 0;opacity:0.85;">AI Readiness Assessment &nbsp;&middot;&nbsp; Higher Education</p>
+    <h1 style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:bold;color:#F0AB00;margin:0 0 18px 0;line-height:1.35;">Are You Prepared For The<br>AI Reckoning in Higher Ed?</h1>
+    <div style="width:56px;height:2px;background:#F0AB00;margin:0 auto 18px auto;opacity:0.6;"></div>
+    <p style="font-family:Georgia,'Times New Roman',serif;font-size:13px;color:#d4edda;margin:0;letter-spacing:0.3px;line-height:1.5;">See where your institution stands in 60 seconds.</p>
+  </div>
+  <div style="padding:28px 32px 32px 32px;">
+    <p>Dear ${firstName},</p>
+    <p>Recent data from CarringtonCrisp and the AACSB suggests business schools are facing a pivotal reckoning. <strong>77% of employers</strong> now expect graduates to arrive AI-ready — yet <strong>58% say universities are currently failing</strong> to meet that mark.</p>
+    <p>With new global accreditation standards taking effect <strong>July 2026</strong>, the gap between leaders and laggards is quickly becoming a matter of institutional survival.</p>
+    <p>Are your graduates prepared for the <strong>56% wage premium</strong> the market now pays for AI-skilled talent? Or is your institution at risk of what the AACSB is calling an "extinction-level" preparation gap?</p>
+    <p>Take our 60-Second AI Quiz to see where your curriculum stands compared to leaders like Wharton, Harvard, and MIT.</p>
+    <p style="text-align:center;margin:28px 0;">
+      <a href="${QUIZ_URL}" style="background-color:#00573F;color:#F0AB00;padding:14px 32px;text-decoration:none;border-radius:5px;font-weight:bold;display:inline-block;font-size:16px;letter-spacing:0.3px;">
+        Take the 60-Second AI Quiz →
+      </a>
+    </p>
+    <p style="margin-top:32px;border-top:1px solid #eeeeee;padding-top:20px;">
+      Best regards,<br>
+      Scott Roberts<br>
+      <a href="https://scottmagnacca.com" style="color:#00573F;">scottmagnacca.com</a>
+    </p>
+    <p style="font-size:12px;color:#aaaaaa;margin-top:20px;line-height:1.5;">
+      Sources: CarringtonCrisp, <em>See the Future 2026</em> &middot; PwC, <em>Global AI Jobs Barometer 2025</em> &middot; GMAC, <em>Corporate Recruiters Survey 2025</em> &middot; AACSB, <em>Global Standards on AI Embedding (July 2026)</em>
+    </p>
+  </div>
+</body>
+</html>`;
+}
+
+// Dispatcher — routes to the correct template based on EMAIL_TEMPLATE env var
+function buildEmailHtml(row) {
+  return EMAIL_TEMPLATE === '2' ? buildEmailHtmlTemplate2(row) : buildEmailHtmlTemplate1(row);
 }
 
 // Send daily summary notification to Scott
@@ -176,23 +231,23 @@ async function main() {
   const successRows = [];
   let sent = 0, skipped = 0, failed = 0;
 
+  // Send seed copy to Scott first so he sees exactly what went out each day
+  const seedRow = EMAIL_TEMPLATE === '2'
+    ? ['Scott', '', 'Dean', 'Babson College', NOTIFY_EMAIL]
+    : ['Scott', '', 'CEO', 'Salesforlife', NOTIFY_EMAIL];
+  try {
+    await sgMail.send({
+      to:      NOTIFY_EMAIL,
+      from:    { email: FROM_EMAIL, name: FROM_NAME },
+      subject: getSubjectLine('Scott'),
+      html:    buildEmailHtml(seedRow),
+    });
+    console.log(`  ✓ [SEED COPY] ${NOTIFY_EMAIL}`);
+  } catch (err) {
+    console.error(`  ✗ [SEED COPY] ${NOTIFY_EMAIL} — ${err.message}`);
+  }
+
   for (let i = 0; i < batch.length; i++) {
-
-    // At the midpoint, send Scott a live prospect copy for quality monitoring
-    if (i === Math.floor(batch.length / 2)) {
-      try {
-        await sgMail.send({
-          to:      NOTIFY_EMAIL,
-          from:    { email: FROM_EMAIL, name: FROM_NAME },
-          subject: 'Quick question, Scott',
-          html:    buildEmailHtml(['Scott', 'Magnacca', 'CEO', 'Salesforlife', NOTIFY_EMAIL]),
-        });
-        console.log(`  ✓ [MONITOR COPY] ${NOTIFY_EMAIL}`);
-      } catch (err) {
-        console.error(`  ✗ [MONITOR COPY] ${NOTIFY_EMAIL} — ${err.message}`);
-      }
-    }
-
     const row       = batch[i];
     const email     = (row[4] || '').trim();
     const firstName = row[0] || 'there';
@@ -207,7 +262,7 @@ async function main() {
       await sgMail.send({
         to:      email,
         from:    { email: FROM_EMAIL, name: FROM_NAME },
-        subject: `Quick question, ${firstName}`,
+        subject: getSubjectLine(firstName),
         html:    buildEmailHtml(row),
       });
       console.log(`  ✓ ${email}`);

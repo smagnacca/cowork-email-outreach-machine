@@ -1,12 +1,10 @@
-name: Email Outreach - Daily Send
+name: Reset Sent Log
 
 on:
-  workflow_dispatch:
-  schedule:
-    - cron: '30 12 * * 1-5'  # 8:30 AM EDT (UTC-4), Mon–Fri
+  workflow_dispatch:  # Manual trigger only — run this once before restarting the campaign
 
 jobs:
-  send-emails:
+  reset:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -20,9 +18,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run email sender
+      - name: Clear Sent Log
         env:
-          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
-          EMAIL_TEMPLATE: "2"
-        run: node send_emails.js
+        run: node reset-sent-log.js
