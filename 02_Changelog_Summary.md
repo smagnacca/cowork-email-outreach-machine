@@ -1,3 +1,34 @@
+### Changelog Update (April 13, 2026 — Tracking Layer + Bug Fixes)
+**Features:** SendGrid Open/Click Tracking + UTM Attribution + Weekly Report Fix
+
+**Changes Made (production repo `smagnacca/email-outreach-machine`):**
+- **SendGrid tracking enabled** — `tracking_settings: { open_tracking: true, click_tracking: true }` added to every `sgMail.send()` call (seed email + batch). Opens and clicks now appear in SendGrid Activity dashboard.
+- **UTM-parameterized quiz URLs** — replaced bare `QUIZ_URL` with `getQuizUrl(row)` function. Each CTA button now links to the quiz with `?utm_source=email&utm_medium=outreach&utm_campaign=template2&utm_content=firstname_company`. Every recipient's click is individually attributable.
+- **Weekly report moved** — `weekly-report.js` and `weekly-report.yml` copied to production repo (`email-outreach-machine`) where secrets and `package.json` live. Was previously in cowork repo with no secrets → always failed silently.
+- **Cowork weekly-report disabled** — removed the schedule from cowork repo's `weekly-report.yml` so it stops generating Monday failure emails.
+
+**Changes Made (quiz repo `smagnacca/CEO_Sales_60_Second-Quiz-Outreach`):**
+- **UTM capture on load** — `_utmParams` IIFE reads all 4 UTM params from URL when quiz page loads
+- **UTM logged to Sheets** — `submit-lead.js` now appends UTM Source, Medium, Campaign, Content as columns J–M in `Quiz_Leads` tab
+- **Quiz_Leads sheet update needed** — add headers to columns J: UTM Source, K: UTM Medium, L: UTM Campaign, M: UTM Content *(Scott to do manually)*
+
+**Bugs Diagnosed (not caused by our changes):**
+- **Daily send 401 Unauthorized** — `SENDGRID_API_KEY` in GitHub Actions secrets was expired. Scott regenerated and updated the secret April 13. Test email still returning 401 — SendGrid account may be suspended or key created with wrong permissions. Needs follow-up.
+- **Weekly report was always broken** — lived in wrong repo with no secrets/package.json. Fixed above.
+
+**SendGrid Dashboard:**
+- Open Tracking: ✅ Enabled at account level
+- Click Tracking: ✅ Enabled at account level
+- Trial ends: May 21, 2026 — upgrade before then
+
+**Next Steps:**
+- Resolve SendGrid 401 (check account status, verify key has Full Access + Mail Send)
+- Save SendGrid API key to `~/.claude/tokens/.sendgrid_token` for local use
+- Purchase larger targeted academic contact list
+- Add follow-up email sequence (Day 3/7/14)
+
+---
+
 ### Changelog Update (April 13, 2026 — Template 2 Launch + Campaign Restart)
 **Feature:** Academic Email Template + Campaign Configuration Overhaul
 
