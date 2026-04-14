@@ -1,3 +1,26 @@
+### Changelog Update (April 14, 2026 — SendGrid Approved, Schedule Re-enabled)
+**Status:** Campaign ACTIVE. Daily sends resume Wednesday April 15 at 8:30 AM EDT.
+
+**SendGrid Upgrade Approved:**
+- Identity review completed. Essentials 50K ($19.95/mo) account now active.
+- Confirmed via API: account no longer returns "Maximum credits exceeded" — credits are live.
+
+**Schedule Re-enabled:**
+- Uncommented cron in `send-emails.yml` (commit f5ea547) in `smagnacca/email-outreach-machine`
+- Schedule: `30 12 * * 1-5` — 8:30 AM EDT, Mon–Fri
+- Campaign resumes at Contact #143+
+- First automated send: **Wednesday April 15, 2026**
+
+**Next Steps (in priority order):**
+1. ✅ SendGrid upgrade approved
+2. ✅ Schedule re-enabled
+3. Check SendGrid Activity after first new batch — filter by "Clicked" to see quiz CTA clicks
+4. Add column headers to Quiz_Leads sheet: J=UTM Source, K=UTM Medium, L=UTM Campaign, M=UTM Content
+5. Purchase larger targeted academic contact list (still pending)
+6. Add follow-up sequence Day 3/7/14 (after tracking data confirms engagement)
+
+---
+
 ### Changelog Update (April 13, 2026 — SendGrid Diagnosis, Pause, Stats Baseline)
 **Status:** Campaign paused until April 17. SendGrid upgrade pending identity review.
 
