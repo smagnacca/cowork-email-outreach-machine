@@ -1,3 +1,25 @@
+### Changelog Update (April 17, 2026 — Trial-Key Credit Bug Fixed, Friday Batch Recovered)
+**Status:** Campaign ACTIVE. 150 emails sent today after fix. Schedule clean going into Monday.
+
+**Problem:**
+- Mon 4/13, Wed 4/15, Fri 4/17 daily sends failed with SendGrid 403/"Maximum credits exceeded" — despite paid Essentials 50K plan being active (978/50,000 used, 49,022 remaining).
+- Tue 4/14 had no run (scheduler skip). Thu 4/16 succeeded (anomaly).
+
+**Root Cause:**
+- The "FinalKey" API key was provisioned during the free trial and retained trial credit limits even after the paid upgrade. SendGrid does NOT auto-refresh existing keys when a plan upgrades — keys created pre-upgrade stay capped at trial limits forever.
+- Confirming symptom: dashboard showed 49K sends available, but `/v3/mail/send` returned `"Maximum credits exceeded"` (HTTP 401, sometimes surfaced as 403 by the SDK).
+
+**Fix:**
+- Regenerated API key in SendGrid → Settings → API Keys with Full Access scopes. New key: `ProdKey` prefix `SG.G7EKhK...`
+- Updated `~/.claude/tokens/.sendgrid_token` locally.
+- Updated GitHub secret `SENDGRID_API_KEY` in `smagnacca/email-outreach-machine`.
+- Manually re-triggered Friday's daily send workflow (run 24570451331): **150 sent, 0 skipped, 0 failed** in 17s.
+
+**Lesson Added to Best Practices:**
+- Always regenerate API keys after upgrading from a free/trial SendGrid plan. Keys inherit the plan tier they were created under.
+
+---
+
 ### Changelog Update (April 14, 2026 — SendGrid Approved, Schedule Re-enabled)
 **Status:** Campaign ACTIVE. Daily sends resume Wednesday April 15 at 8:30 AM EDT.
 
